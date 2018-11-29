@@ -111,11 +111,11 @@ problem.substitutions['J(A,B)'] = "dx(A) * dy(B) - dy(A) * dx(B)"
 problem.substitutions["DLap(A)"] = "dx(dx(dx(dx(A)))) + 2*dx(dx(dy(dy(A)))) + dy(dy(dy(dy(A))))"
 problem.substitutions['Avg_x(A)'] = "integ(A,'x')/Lx"
 problem.substitutions['Avg_y(A)'] = "integ(A,'y')/Ly"
-problem.substitutions['psi_mean'] = "Avg_y(psi)"
-problem.substitutions['n_mean'] = "Avg_y(n)"
+problem.substitutions['psi_fluct'] = "psi - Avg_y(psi)"
+problem.substitutions['n_fluct'] = "n - Avg_y(n)"
 
-problem.add_equation("dt(zeta) - α*(psi_mean - n_mean) - D*DLap(zeta) = -J(psi,zeta)", condition="nx != 0")
-problem.add_equation("dt(n)    - α*(psi_mean - n_mean) + κ*dx(psi) - D*DLap(n) = -J(psi,n)", condition="nx != 0")
+problem.add_equation("dt(zeta) - α*(psi_fluct - n_fluct) + D*DLap(zeta) = -J(psi,zeta)", condition="nx != 0")
+problem.add_equation("dt(n)    - α*(psi_fluct - n_fluct) + κ*dx(psi) + D*DLap(n) = -J(psi,n)", condition="nx != 0")
 problem.add_equation("dx(dx(psi)) + dy(dy(psi)) - zeta = 0", condition="nx != 0")
 problem.add_equation("zeta = 0", condition="nx ==0")
 problem.add_equation("n = 0", condition="nx ==0")
@@ -162,7 +162,7 @@ check = solver.evaluator.add_file_handler(os.path.join(data_dir,'checkpoints'), 
 check.add_system(solver.state)
 analysis_tasks.append(check)
 
-snap = solver.evaluator.add_file_handler(os.path.join(data_dir,'snapshots'), sim_dt=1e-2, max_writes=200)
+snap = solver.evaluator.add_file_handler(os.path.join(data_dir,'snapshots'), sim_dt=5, max_writes=200)
 snap.add_task("dx(psi)", name="u_y")
 snap.add_task("-dy(psi)", name="u_x")
 snap.add_task("zeta")

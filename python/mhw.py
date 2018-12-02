@@ -99,7 +99,7 @@ y_basis = de.Fourier('y', ny, interval=(0, Ly), dealias=3/2)
 domain = de.Domain([y_basis, x_basis], grid_dtype=np.float64)
 
 # 2D Boussinesq hydrodynamics
-problem = de.IVP(domain, variables=['psi','n','zeta'], time='t')
+problem = de.IVP(domain, variables=['psi','n'], time='t')
 problem.parameters['α'] = alpha
 problem.parameters['κ'] = kappa
 problem.parameters['D'] = D
@@ -113,11 +113,10 @@ problem.substitutions['Avg_x(A)'] = "integ(A,'x')/Lx"
 problem.substitutions['Avg_y(A)'] = "integ(A,'y')/Ly"
 problem.substitutions['psi_fluct'] = "psi - Avg_y(psi)"
 problem.substitutions['n_fluct'] = "n - Avg_y(n)"
+problem.substitutions['zeta'] = "dx(dx(psi)) + dy(dy(psi))"
 
 problem.add_equation("dt(zeta) - α*(psi_fluct - n_fluct) + D*DLap(zeta) = -J(psi,zeta)", condition="nx != 0")
 problem.add_equation("dt(n)    - α*(psi_fluct - n_fluct) + κ*dx(psi) + D*DLap(n) = -J(psi,n)", condition="nx != 0")
-problem.add_equation("dx(dx(psi)) + dy(dy(psi)) - zeta = 0", condition="nx != 0")
-problem.add_equation("zeta = 0", condition="nx ==0")
 problem.add_equation("n = 0", condition="nx ==0")
 problem.add_equation("psi = 0", condition="nx ==0")
 

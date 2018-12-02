@@ -35,6 +35,8 @@ logger = logging.getLogger(__name__)
 
 from docopt import docopt
 
+from filter_field import filter_field
+
 # parse arguments
 args = docopt(__doc__)
 
@@ -141,6 +143,13 @@ else:
         rand = np.random.RandomState(seed)
         pert =  1e-3 * rand.standard_normal(shape) #* np.sin(np.pi*y) #* (yt - y) * (y - yb)
         n['g'] = pert
+        if filter_frac != 1.: 
+            logger.info("Beginning filter")
+            filter_field(n,frac=filter_frac)
+            logger.info("Finished filter")
+        else:
+            logger.warn("No filtering applied to ICs! This is probably bad!")
+
 
 if CFL:
     CFL = flow_tools.CFL(solver, initial_dt=1e-4, cadence=5, safety=0.3,
@@ -148,11 +157,11 @@ if CFL:
     CFL.add_velocities(('dy(psi)', '-dx(psi)'))
     dt = CFL.compute_dt()
 else:
-    dt = 1e-4
+    dt = 1e-3
 
 # Integration parameters
 solver.stop_sim_time = stop_time
-solver.stop_wall_time = 60.*60
+solver.stop_wall_time = 60.*60*24*5
 solver.stop_iteration = np.inf
 
 # Analysis
